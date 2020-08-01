@@ -23,7 +23,13 @@ struct point {
 		z = p.z;
 		return *this;
 	}
+	friend bool operator==(const point& pl, const point& pr) {
+	if (pl.x != pr.x || pl.y != pr.y || pl.z != pr.z) return false;
+	return true;
+	}
 };
+
+
 
 template<typename T>
 T Node<T>::getdata() const {
@@ -42,10 +48,11 @@ Stack<T>::Stack() {
 }
 
 template<typename T>
-inline void Stack<T>::push(const T& dt) {
+inline T& Stack<T>::push(const T& dt) {
 	Node<T>* tmp = new Node<T>(dt, tail);
 	tail = tmp;
 	size_++;
+	return tail->data;
 }
 
 template<typename T>
