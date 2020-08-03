@@ -1,7 +1,9 @@
 #include "Stack.h"
+#include "point.h"
 
 template<typename T>
 void test(Stack<T>& St) {
+	std::stack<T> stck;
 	St.push(0);
 	std::cout << St << std::endl;
 	St.clear();
@@ -11,18 +13,21 @@ void test(Stack<T>& St) {
 	St.pop();
 	std::cout << St << std::endl;
 	for (int i = 0; i < 10; i++) {
+		stck.push(i);
 		St.push(i);
 	}
 	std::cout << St << std::endl;
 	Stack<T> St_copy;
 	St_copy = St;
 	St.pop();
+	stck.pop();
 	std::cout << St << std::endl;
 	std::cout << St_copy << std::endl;
 	St_copy.clear();
 	//St_copy.pop();
 	Stack<T> st_copy_2(St);
 	std::cout << st_copy_2 << std::endl;
+	std::cout << (St == stck) << std::endl;
 }
 
 int main() {

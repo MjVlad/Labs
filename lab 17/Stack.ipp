@@ -1,44 +1,6 @@
-struct point {
-	int x = 0;
-	int y = 0;
-	int z = 0;
-	point() {
-		x = 0;
-		y = 0;
-		z = 0;
-	}
-	point(int a) {
-		x = a;
-		y = a;
-		z = a;
-	}
-	point(int x1, int y1, int z1) {
-		x = x1;
-		y = y1;
-		z = z1;
-	}
-	point& operator=(const point& p) {
-		x = p.x;
-		y = p.y;
-		z = p.z;
-		return *this;
-	}
-	friend bool operator==(const point& pl, const point& pr) {
-	if (pl.x != pr.x || pl.y != pr.y || pl.z != pr.z) return false;
-	return true;
-	}
-};
-
-
-
 template<typename T>
 T Node<T>::getdata() const {
 	return data;
-}
-
-std::ostream& operator<<(std::ostream& out, point& p) {
-	out << "(" << p.x << ";" << p.y << ";" << p.z << ")";
-	return out;
 }
 
 template<typename T>
@@ -125,4 +87,16 @@ inline Stack<T>& Stack<T>::operator=(const Stack<T>& st) {
 	}
 	delete[] tmp;
 	return *this;
+}
+
+template<typename T>
+bool operator==(const Stack<T>& Sl, const std::stack<T> Sr) {
+	Node<T>* nd = Sl.tail;
+	std::stack<T> tmp(Sr);
+	for (size_t i = 0; i < Sl.size(); i++) {
+		if (nd->getdata() != tmp.top()) return false;
+		nd = nd->prev;
+		tmp.pop();
+	}
+	return true;
 }
