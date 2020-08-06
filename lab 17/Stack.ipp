@@ -90,10 +90,10 @@ inline Stack<T>& Stack<T>::operator=(const Stack<T>& st) {
 }
 
 template<typename T>
-bool operator==(const Stack<T>& Sl, const std::stack<T> Sr) {
-	Node<T>* nd = Sl.tail;
+bool Stack<T>::operator==(const std::stack<T>& Sr) {
+	Node<T>* nd = this->tail;
 	std::stack<T> tmp(Sr);
-	for (size_t i = 0; i < Sl.size(); i++) {
+	for (size_t i = 0; i < this->size(); i++) {
 		if (nd->getdata() != tmp.top()) return false;
 		nd = nd->prev;
 		tmp.pop();
