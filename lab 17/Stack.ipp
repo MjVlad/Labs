@@ -1,49 +1,24 @@
-struct point {
-	int x = 0;
-	int y = 0;
-	int z = 0;
-	point() {
-		x = 0;
-		y = 0;
-		z = 0;
-	}
-	point(int a) {
-		x = a;
-		y = a;
-		z = a;
-	}
-	point(int x1, int y1, int z1) {
-		x = x1;
-		y = y1;
-		z = z1;
-	}
-	point& operator=(const point& p) {
-		x = p.x;
-		y = p.y;
-		z = p.z;
-		return *this;
-	}
-};
-
+#include "Stack.h"
 template<typename T>
-T Node<T>::getdata() const {
+const T& Node<T>::getdata() const {
 	return data;
-}
-
-std::ostream& operator<<(std::ostream& out, point& p) {
-	out << "(" << p.x << ";" << p.y << ";" << p.z << ")";
-	return out;
 }
 
 template<typename T>
 Stack<T>::Stack() {
 	size_ = 0;
 	tail = nullptr;
+	head = nullptr;
 }
-
+ 
 template<typename T>
-inline void Stack<T>::push(const T& dt) {
+ void Stack<T>::push(const T& dt) {
 	Node<T>* tmp = new Node<T>(dt, tail);
+	if (tail)
+		tail->next = tmp;
+	else { 
+		head = tmp;
+	}
 	tail = tmp;
 	size_++;
 }
@@ -51,10 +26,12 @@ inline void Stack<T>::push(const T& dt) {
 template<typename T>
 T Stack<T>::pop() {
 	if (!tail) throw std::out_of_range("stack is empty");
-	T tmp = tail->getdata();
+	T tmp = tail->data;
 	Node<T>* nd = tail->prev;
 	delete tail;
 	tail = nd;
+	if (tail)
+		tail->next = nullptr;
 	size_--;
 	return tmp;
 }
@@ -67,6 +44,12 @@ void Stack<T>::clear() {
 		tail = nd;
 		size_--;
 	}
+}
+
+template<typename Tp>
+inline std::ostream& operator<<(std::ostream& out, const Node<Tp>& st){
+	out << st.getdata();
+	return out;
 }
 
 template<typename T>
@@ -87,35 +70,131 @@ Stack<T>::~Stack() {
 template<typename T>
 Stack<T>::Stack(const Stack<T>& st) {
 	size_ = 0;
+	head = nullptr;
 	tail = nullptr;
-	T* tmp = new T[st.size_];
-	Node<T>* nd = st.tail;
-	size_t i = 1;
-	for (i; i <= st.size_; i++) {
-		tmp[i - 1] = nd->data;
-		nd = nd->prev;
+	Node<T>* nd = st.head;
+	for (size_t i = 0; i < st.size_; i++) {
+		this->push(nd->getdata());
+		nd = nd->next;
 	}
-	for (i--; i > 0; i--) {
-		this->push(tmp[i - 1]);
-	}
-	delete[] tmp;
 }
 
 template<typename T>
-inline Stack<T>& Stack<T>::operator=(const Stack<T>& st) {
+Stack<T>& Stack<T>::operator=(const Stack& st) {
 	if (this == &st) return *this;
-	this->clear();
-	tail = nullptr;
-	T* tmp = new T[st.size_];
-	Node<T>* nd = st.tail;
-	size_t i = 1;
-	for (i; i <= st.size_; i++) {
-		tmp[i - 1] = nd->data;
-		nd = nd->prev;
+	int diff_size = (int)size_ - (int)st.size_;
+	Node<T>* l_nd = head;
+	Node<T>* r_nd = st.head;
+	if (diff_size < 0) {
+		for (int i = 0; i < size_; i++) {
+			l_nd->data = r_nd->data;
+			l_nd = l_nd->next;
+			r_nd = r_nd->next;
+		}
+		for (int i = 0; i > diff_size; i--) {
+			this->push(r_nd->getdata());
+			r_nd = r_nd->next;
+		}
 	}
-	for (i--; i > 0; i--) {
-		this->push(tmp[i - 1]);
+	else {
+		for (int i = 0; i < st.size_; i++) {
+			l_nd->data = r_nd->data;
+			l_nd = l_nd->next;
+			r_nd = r_nd->next;
+		}
+		for (int i = 0; i < diff_size; i++) {
+			this->pop();
+		}
 	}
-	delete[] tmp;
 	return *this;
+}
+
+template<typename T>
+bool Stack<T>::operator==(const std::stack<T>& Sr) {  // operator for std::stack
+	if (this->size_ != Sr.size()) return false;
+	Node<T>* nd = this->tail;
+	std::stack<T> tmp(Sr);
+	for (size_t i = 0; i < this->size(); i++) {
+		if (nd->getdata() != tmp.top()) return false;
+		nd = nd->prev;
+		tmp.pop();
+	}
+	return true;
+}
+
+template<typename T>
+inline Iterator<T> Stack<T>::begin(){
+	Iterator<T> it(head);
+	return it;
+}
+
+template<typename T>
+inline Iterator<T> Stack<T>::end(){
+	Iterator<T> it(tail->next);
+	return it;
+}
+
+template<typename T>
+inline Iterator<T>& Iterator<T>::operator=(const Iterator<T>& r) {
+	nd = r.nd;
+	return *this;
+}
+
+template<typename T>
+inline Iterator<T> Iterator<T>::operator-(int r) const{
+	Iterator<T> tmp(*this);
+	while (r) {
+		--tmp;
+		r--;
+	}
+	return tmp;
+}
+
+template<typename T>
+inline Iterator<T> Iterator<T>::operator+(int r) const{
+	Iterator<T> tmp(*this);
+	while (r) {
+		++tmp;
+		r--;
+	}
+	return tmp;
+}
+
+template<typename T>
+inline Iterator<T>& Iterator<T>::operator++() {
+	if (!nd) throw std::logic_error("the iterator points to void");
+	nd = nd->next;
+	return *this;
+}
+
+template<typename T>
+inline Iterator<T>& Iterator<T>::operator--() {
+	if (!nd) throw std::logic_error("the iterator points to void");
+	nd = nd->prev;
+	return *this;
+}
+
+template<typename T>
+inline bool Iterator<T>::operator==(const Iterator<T>& r) {
+	return nd == r.nd;
+}
+
+template<typename T>
+inline bool Iterator<T>::operator!=(const Iterator<T>& r) {
+	return nd != r.nd;
+}
+
+template<typename T>
+inline T& Iterator<T>::dereference() {
+	return nd->data;
+}
+
+template<typename T>
+inline T& Iterator<T>::operator*(){
+	return nd->data;
+}
+
+template<typename T>
+inline T& Iterator<T>::operator->(){
+	return nd->data;
 }
