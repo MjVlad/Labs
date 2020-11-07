@@ -36,8 +36,3 @@ std::ostream& operator<<(std::ostream& out, point& p) {
 	out << "(" << p.x << ";" << p.y << ";" << p.z << ")";
 	return out;
 }
-
-//bool operator!=(point& pl, point& pr) {
-//	if ((pl.x == pr.x && pl.y == pr.y) && (pl.z == pr.z)) return false;
-//	return true;
-//}
